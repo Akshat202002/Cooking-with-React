@@ -1,19 +1,7 @@
-import React, { useState } from 'react';
-import Counter from './Counter';
-
-export const ThemeContext = React.createContext();
+import React from 'react';
 
 function App() {
-  const [theme, setTheme] = useState('red');
-
-  return (
-    <ThemeContext.Provider value={{ backgroundColor: theme }}>
-      <Counter initialCount={0} />
-      <button onClick={() => setTheme(prevTheme => {
-        return prevTheme === 'red' ? 'blue' : 'red'
-      })}>Toggle Theme</button>
-    </ThemeContext.Provider>
-  )
+  return null
 }
 
 export default App;
