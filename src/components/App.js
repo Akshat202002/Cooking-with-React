@@ -1,12 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RecipeList from './RecipeList';
 import '../css/app.css';
 import { v4 as uuidv4 } from 'uuid';
 
 export const RecipeContext = React.createContext();
+const LOCAL_STORAGE_KEY = 'cookingWithReact.recipes'
 
 function App() {
   const [recipes, setRecipes] = useState(sampleRecipes)
+
+  // 1. Using useEffect to load recipes from localStorage
+  useEffect(() => {
+    const recipeJSON = localStorage.getItem(LOCAL_STORAGE_KEY)
+    if (recipeJSON != null) setRecipes(JSON.parse(recipeJSON))
+  }, [])
+
+  // 2.Using useEffect to save recipes to localStorage
+  useEffect(() => {
+    const recipeJSON = JSON.stringify(recipes) // LocalStorage only stores strings
+    localStorage.setItem(LOCAL_STORAGE_KEY, recipeJSON)
+  }, [recipes])
 
   const recipeContextValue = {
     handleRecipeAdd, // Same as handleRecipeAdd: handleRecipeAdd
@@ -25,11 +38,24 @@ function App() {
       ]
     }
 
-    setRecipes([...recipes, newRecipe])
+    // use previous state to set new state
+    setRecipes(prevRecipes => {
+      return [...prevRecipes, newRecipe]
+    }
+    )
+    // Without previous state
+    // setRecipes([...recipes, newRecipe])
   }
 
   function handleRecipeDelete(id) {
-    setRecipes(recipes.filter(recipe => recipe.id !== id))
+    // setRecipes(recipes.filter(recipe => recipe.id !== id))
+
+    // Use previous state to set new state
+    setRecipes(prevRecipes => {
+      return prevRecipes.filter(recipe => recipe.id !== id)
+    }
+    )
+
   }
 
   return (
