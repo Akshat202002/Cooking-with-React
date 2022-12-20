@@ -7,22 +7,39 @@ export const RecipeContext = React.createContext();
 const LOCAL_STORAGE_KEY = 'cookingWithReact.recipes'
 
 function App() {
-  const [recipes, setRecipes] = useState(sampleRecipes)
+
+  // BEFORE: const [recipes, setRecipes] = useState(sampleRecipes)
+  // Didn't work because the state was initialized before the component was mounted. Also the state was initialized with the same value every time the component was rendered. So, the state was not saved to localStorage.Also StrictMode in react renders the code twice(on development but not production). First run sets localstorage to data given, then the second run overrides it so now data is blank 
+  // So if you remove StrictMode, it will work. But, StrictMode is a good thing to have in development. So, we needed to fix this.
+
+  // AFTER:
+  const [recipes, setRecipes] = useState(() => {
+    // Important: LocalStorage is a synchronous operation and will block the main thread
+    // if the data is large. So, we use a function to initialize the state.
+    // This function will only be called once when the component is first rendered.
+    // The function will be called again if the component is unmounted and mounted again.
+    // This is a good place to load data from localStorage.
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || sampleRecipes
+  });
 
   // 1. Using useEffect to load recipes from localStorage
   useEffect(() => {
     const recipeJSON = localStorage.getItem(LOCAL_STORAGE_KEY)
-    if (recipeJSON != null) setRecipes(JSON.parse(recipeJSON))
+    if (recipeJSON != null) {
+      setRecipes(JSON.parse(recipeJSON))
+    }
   }, [])
+
 
   // 2.Using useEffect to save recipes to localStorage
   useEffect(() => {
-    const recipeJSON = JSON.stringify(recipes) // LocalStorage only stores strings
-    localStorage.setItem(LOCAL_STORAGE_KEY, recipeJSON)
+    if (recipes.length > 0) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(recipes))
+    }
   }, [recipes])
 
   const recipeContextValue = {
-    handleRecipeAdd, // Same as handleRecipeAdd: handleRecipeAdd
+    handleRecipeAdd,
     handleRecipeDelete
   }
 
@@ -32,30 +49,17 @@ function App() {
       name: 'New',
       servings: 1,
       cookTime: '1:00',
-      instructions: 'Instr...',
+      instructions: 'Instr.',
       ingredients: [
         { id: uuidv4(), name: 'Name', amount: '1 Tbs' }
       ]
     }
 
-    // use previous state to set new state
-    setRecipes(prevRecipes => {
-      return [...prevRecipes, newRecipe]
-    }
-    )
-    // Without previous state
-    // setRecipes([...recipes, newRecipe])
+    setRecipes([...recipes, newRecipe])
   }
 
   function handleRecipeDelete(id) {
-    // setRecipes(recipes.filter(recipe => recipe.id !== id))
-
-    // Use previous state to set new state
-    setRecipes(prevRecipes => {
-      return prevRecipes.filter(recipe => recipe.id !== id)
-    }
-    )
-
+    setRecipes(recipes.filter(recipe => recipe.id !== id))
   }
 
   return (

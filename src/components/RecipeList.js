@@ -7,14 +7,14 @@ function RecipeList({ recipes }) {
     return (
         <div className="recipe-list">
             <div>
-                {recipes.map((recipe) => {
+                {recipes.map(recipe => {
                     return <Recipe key={recipe.id} {...recipe} />;
                 })}
             </div>
             <div className="recipe-list__add-recipe-btn-container">
                 <button
-                    onClick={handleRecipeAdd}
-                    className="btn btn--primary">
+                    className="btn btn--primary"
+                    onClick={handleRecipeAdd}>
                     Add Recipe
                 </button>
             </div>
