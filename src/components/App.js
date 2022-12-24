@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import RecipeList from './RecipeList';
 import '../css/app.css';
 import { v4 as uuidv4 } from 'uuid';
+import RecipeEdit from './RecipeEdit';
 
 export const RecipeContext = React.createContext();
 const LOCAL_STORAGE_KEY = 'cookingWithReact.recipes'
 
 function App() {
-
+  const [selectedRecipeId, setSelectedRecipeId] = useState();
+  const selectedRecipe = sampleRecipes.find(recipe => recipe.id === selectedRecipeId)
+  console.log(selectedRecipe);
   // BEFORE: const [recipes, setRecipes] = useState(sampleRecipes)
   // Didn't work because the state was initialized before the component was mounted. Also the state was initialized with the same value every time the component was rendered. So, the state was not saved to localStorage.Also StrictMode in react renders the code twice(on development but not production). First run sets localstorage to data given, then the second run overrides it so now data is blank 
   // So if you remove StrictMode, it will work. But, StrictMode is a good thing to have in development. So, we needed to fix this.
@@ -25,13 +28,14 @@ function App() {
   // 1. Using useEffect to load recipes from localStorage
   useEffect(() => {
     const recipeJSON = localStorage.getItem(LOCAL_STORAGE_KEY)
-    if (recipeJSON != null) {
+    if (recipeJSON === null) {
       setRecipes(JSON.parse(recipeJSON))
     }
   }, [])
 
 
   // 2.Using useEffect to save recipes to localStorage
+  // Save recipes to local storage whenever recipes array is updated
   useEffect(() => {
     if (recipes.length > 0) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(recipes))
@@ -40,10 +44,16 @@ function App() {
 
   const recipeContextValue = {
     handleRecipeAdd,
-    handleRecipeDelete
+    handleRecipeDelete,
+    handleRecipeSelect
+  }
+
+  function handleRecipeSelect(id) {
+    setSelectedRecipeId(id)
   }
 
   function handleRecipeAdd() {
+    // create a new recipe
     const newRecipe = {
       id: uuidv4(),
       name: 'New',
@@ -55,6 +65,7 @@ function App() {
       ]
     }
 
+    // add the new recipe to the existing list of recipes
     setRecipes([...recipes, newRecipe])
   }
 
@@ -65,6 +76,7 @@ function App() {
   return (
     <RecipeContext.Provider value={recipeContextValue}>
       <RecipeList recipes={recipes} />
+      {selectedRecipe && <RecipeEdit recipe={selectedRecipe} />}
     </RecipeContext.Provider>
   )
 
