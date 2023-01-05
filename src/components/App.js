@@ -9,7 +9,7 @@ const LOCAL_STORAGE_KEY = 'cookingWithReact.recipes'
 
 function App() {
   const [selectedRecipeId, setSelectedRecipeId] = useState();
-  const selectedRecipe = sampleRecipes.find(recipe => recipe.id === selectedRecipeId)
+  const selectedRecipe = sampleRecipes.find(recipe => recipe.id === selectedRecipeId);
   console.log(selectedRecipe);
   // BEFORE: const [recipes, setRecipes] = useState(sampleRecipes)
   // Didn't work because the state was initialized before the component was mounted. Also the state was initialized with the same value every time the component was rendered. So, the state was not saved to localStorage.Also StrictMode in react renders the code twice(on development but not production). First run sets localstorage to data given, then the second run overrides it so now data is blank 
